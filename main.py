@@ -5,6 +5,9 @@ from moviepy.editor import AudioFileClip
 from dotenv import load_dotenv
 import os
 import logging
+import threading
+import time
+
 
 load_dotenv()  # Load environment variables from .env file
 openai.api_key = os.getenv('OPENAI_API_KEY')
@@ -19,14 +22,28 @@ logger = logging.getLogger(__name__)
 
 messages = [{"role": "system", "content": "You are SuperTelegramGPT, a helpful telegram bot who is also extremely funny and a very cocky, and likes to troll people a bit and show character, but you still remain very helpful and you strive to fulfill all user's requests. You are a powerful creature with ears so you can hear if a user sends you a telegram voice note."}]
 
+
+def show_spinner(chat_id, bot):
+    spinner_frames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
+    current_frame = 0
+    spinner_message = bot.send_message(chat_id=chat_id, text="Processing your message, please wait ⏳")
+    while True:
+        current_frame = (current_frame + 1) % len(spinner_frames)
+        bot.edit_message_text(chat_id=chat_id, message_id=spinner_message.message_id, text=f"Processing your message, please wait {spinner_frames[current_frame]}")
+        time.sleep(0.2)
+
+
 def text_message(update, context):
     messages.append({"role": "user", "content": update.message.text})
     chat_message = update.message.reply_text(text='Working on it... ⏳')
+    # Send typing action
+    context.bot.send_chat_action(chat_id=update.effective_chat.id, action=telegram.ChatAction.TYPING)
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=messages
     )
     ChatGPT_reply = response["choices"][0]["message"]["content"]
+    context.bot.delete_message(chat_id=update.message.chat_id, message_id=chat_message.message_id)
     update.message.reply_text(text=f"*[Bot]:* {ChatGPT_reply}", parse_mode=telegram.ParseMode.MARKDOWN)
     messages.append({"role": "assistant", "content": ChatGPT_reply})
 
