@@ -67,7 +67,6 @@ def text_message(update, context):
     context.bot.delete_message(chat_id=update.message.chat_id, message_id=chat_message.message_id)
     update.message.reply_text(text=f"*[Bot]:* {ChatGPT_reply}", parse_mode=telegram.ParseMode.MARKDOWN)
     messages.append({"role": "assistant", "content": ChatGPT_reply})
-    messages = messages[-10:]
 
 
 def voice_message(update, context):
@@ -92,7 +91,6 @@ def voice_message(update, context):
     context.bot.delete_message(chat_id=update.message.chat_id, message_id=chat_message.message_id)
     update.message.reply_text(text=f"*[Bot]:* {ChatGPT_reply}", parse_mode=telegram.ParseMode.MARKDOWN)
     messages.append({"role": "assistant", "content": ChatGPT_reply})
-    messages = messages[-10:]
 
 
 def start(update, context):
