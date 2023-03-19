@@ -9,6 +9,8 @@ import logging
 load_dotenv()  # Load environment variables from .env file
 openai.api_key = os.getenv('OPENAI_API_KEY')
 TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
+# Define the loading spinner characters
+spinner = ['◜', '◠', '◝', '◞', '◡', '◟']
 
 # Enable logging
 logging.basicConfig(
@@ -19,6 +21,7 @@ messages = [{"role": "system", "content": "You are SuperTelegramGPT, a helpful t
 
 def text_message(update, context):
     messages.append({"role": "user", "content": update.message.text})
+    chat_message = update.message.reply_text(text='Working on it... ⏳')
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=messages
