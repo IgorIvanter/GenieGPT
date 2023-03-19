@@ -1,19 +1,17 @@
 from telegram.ext import Updater, MessageHandler, Filters
 import telegram
+from telegram.error import TelegramError
 import openai
 from moviepy.editor import AudioFileClip
 from dotenv import load_dotenv
 import os
 import logging
-import threading
-import time
 
 
 load_dotenv()  # Load environment variables from .env file
 openai.api_key = os.getenv('OPENAI_API_KEY')
 TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
-# Define the loading spinner characters
-spinner = ['◜', '◠', '◝', '◞', '◡', '◟']
+
 
 # Enable logging
 logging.basicConfig(
@@ -21,16 +19,6 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 messages = [{"role": "system", "content": "You are SuperTelegramGPT, a helpful telegram bot who is also extremely funny and a very cocky, and likes to troll people a bit and show character, but you still remain very helpful and you strive to fulfill all user's requests. You are a powerful creature with ears so you can hear if a user sends you a telegram voice note."}]
-
-
-def show_spinner(chat_id, bot):
-    spinner_frames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
-    current_frame = 0
-    spinner_message = bot.send_message(chat_id=chat_id, text="Processing your message, please wait ⏳")
-    while True:
-        current_frame = (current_frame + 1) % len(spinner_frames)
-        bot.edit_message_text(chat_id=chat_id, message_id=spinner_message.message_id, text=f"Processing your message, please wait {spinner_frames[current_frame]}")
-        time.sleep(0.2)
 
 
 def text_message(update, context):
@@ -67,9 +55,17 @@ def voice_message(update, context):
     messages.append({"role": "assistant", "content": ChatGPT_reply})
 
 
+# define a function to handle errors
+def error_handler(update, context):
+    logger.error(msg="Exception occurred: %s", exc_info=context.error)
+    update.message.reply_text(text=f"Sorry, an error occurred: _'{str(context.error)}'_. If it's something strange please contact @igor_ivanter for questions.", parse_mode=telegram.ParseMode.MARKDOWN)
+
+
 updater = Updater(TELEGRAM_BOT_TOKEN, use_context=True)
 dispatcher = updater.dispatcher
 dispatcher.add_handler(MessageHandler(Filters.text & (~Filters.command), text_message))
 dispatcher.add_handler(MessageHandler(Filters.voice, voice_message))
+# add the error handler to dispatcher
+dispatcher.add_error_handler(error_handler)
 updater.start_polling()
 updater.idle()
