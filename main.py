@@ -1,6 +1,5 @@
 from telegram.ext import Updater, MessageHandler, CommandHandler, Filters, CallbackQueryHandler
 import telegram
-from telegram.error import TelegramError
 import openai
 from moviepy.editor import AudioFileClip
 from dotenv import load_dotenv
@@ -16,7 +15,7 @@ TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
 
 # Enable logging
 logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 messages = [{"role": "system", "content": "You are SuperTelegramGPT, a helpful telegram bot who is also extremely funny and a very cocky, and likes to troll people a bit and show character, but you still remain very helpful and you strive to fulfill all user's requests. You are a powerful creature with ears so you can hear if a user sends you a telegram voice note."}]
@@ -44,15 +43,13 @@ def button_click_handler(update, context):
         query.edit_message_text(text="Invalid button")
 
 
-# Create the inline keyboard with a button
-inline_keyboard = [[InlineKeyboardButton('Button 1', callback_data='button1'), InlineKeyboardButton('Button 2', callback_data='button2')]]
-reply_markup = InlineKeyboardMarkup(inline_keyboard)
-
-# Add the keyboard to the message
-reply_markup = InlineKeyboardMarkup(inline_keyboard)
-
-
 def buttons_demo(update, context):
+    # Create the inline keyboard with a button
+    inline_keyboard = [[InlineKeyboardButton('Button 1', callback_data='button1'), InlineKeyboardButton('Button 2', callback_data='button2')]]
+    reply_markup = InlineKeyboardMarkup(inline_keyboard)
+
+    # Add the keyboard to the message
+    reply_markup = InlineKeyboardMarkup(inline_keyboard)
     update.message.reply_text('Press a button:', reply_markup=reply_markup)
 
 
@@ -63,32 +60,43 @@ def text_message(update, context):
     context.bot.send_chat_action(chat_id=update.effective_chat.id, action=telegram.ChatAction.TYPING)
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
-        messages=messages
+        messages=messages,
+        timeout=30
     )
     ChatGPT_reply = response["choices"][0]["message"]["content"]
     context.bot.delete_message(chat_id=update.message.chat_id, message_id=chat_message.message_id)
     update.message.reply_text(text=f"*[Bot]:* {ChatGPT_reply}", parse_mode=telegram.ParseMode.MARKDOWN)
     messages.append({"role": "assistant", "content": ChatGPT_reply})
+    messages = messages[-10:]
 
 
 def voice_message(update, context):
-    update.message.reply_text("I've received a voice message! Please give me a second to respond :)")
+    voice_received_message = update.message.reply_text("I've received a voice message! Please give me a second to respond ⏳")
     voice_file = context.bot.getFile(update.message.voice.file_id)
     voice_file.download("voice_message.ogg")
     audio_clip = AudioFileClip("voice_message.ogg")
     audio_clip.write_audiofile("voice_message.mp3")
     audio_file = open("voice_message.mp3", "rb")
     transcript = openai.Audio.transcribe("whisper-1", audio_file).text
-    update.message.reply_text(text=f"*[You]:* _{transcript}_", parse_mode=telegram.ParseMode.MARKDOWN)
+    inline_keyboard = [[InlineKeyboardButton('Edit', callback_data='button1'), InlineKeyboardButton('Submit', callback_data='button2')]]
+    reply_markup = InlineKeyboardMarkup(inline_keyboard)
+    context.bot.delete_message(chat_id=update.message.chat_id, message_id=voice_received_message.message_id)
+    update.message.reply_text(text=f"*[You]:* _{transcript}_", parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=reply_markup)
+    chat_message = update.message.reply_text(text='Working on it... ⏳')
     messages.append({"role": "user", "content": transcript})
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=messages
     )
     ChatGPT_reply = response["choices"][0]["message"]["content"]
+    context.bot.delete_message(chat_id=update.message.chat_id, message_id=chat_message.message_id)
     update.message.reply_text(text=f"*[Bot]:* {ChatGPT_reply}", parse_mode=telegram.ParseMode.MARKDOWN)
     messages.append({"role": "assistant", "content": ChatGPT_reply})
+    messages = messages[-10:]
 
+
+def start(update, context):
+    update.message.reply_text(text="*Welcome to GenieGPT!*\n\n*Who am I?*\n\nI am GenieGPT - a powerful AI system, I analyze your message and provide you with a helpful response as quickly as possible. You can also send me voice notes and I will hear you (yeah I have ears 😱)\n\n*What can I do?*\n\nFrom writing essays on classic literature to explaining quantum field theory - you name it. Just type in your question and I will get back to you ASAP 😎\n\n*Limitations*\n\nPlease keep in mind that sometimes I may not answer because I am overloaded with requests from other users.", parse_mode=telegram.ParseMode.MARKDOWN)
 
 # define a function to handle errors
 def error_handler(update, context):
@@ -98,8 +106,9 @@ def error_handler(update, context):
 
 updater = Updater(TELEGRAM_BOT_TOKEN, use_context=True)
 dispatcher = updater.dispatcher
-start_handler = CommandHandler('buttons', buttons_demo)
-dispatcher.add_handler(start_handler)
+dispatcher.add_handler(CommandHandler('buttons', buttons_demo))
+dispatcher.add_handler(CommandHandler('start', start))
+dispatcher.add_handler(CommandHandler('help', start))
 dispatcher.add_handler(MessageHandler(Filters.text & (~Filters.command), text_message))
 dispatcher.add_handler(MessageHandler(Filters.voice, voice_message))
 # add the error handler to dispatcher
