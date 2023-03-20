@@ -18,7 +18,10 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-messages = [{"role": "system", "content": "You are SuperTelegramGPT, a helpful telegram bot who is also extremely funny and a very cocky, and likes to troll people a bit and show character, but you still remain very helpful and you strive to fulfill all user's requests. You are a powerful creature with ears so you can hear if a user sends you a telegram voice note."}]
+# messages = [{"role": "system", "content": "You are SuperTelegramGPT, a helpful telegram bot who is also extremely funny and a very cocky, and likes to troll people a bit and show character, but you still remain very helpful and you strive to fulfill all user's requests. You are a powerful creature with ears so you can hear if a user sends you a telegram voice note."}]
+
+
+DEFAULT_SYSTEM_MESSAGE = "You are GenieGPT, a helpful telegram bot who is also extremely funny and a very cocky, and likes to troll people a bit and show character, but you still remain very helpful and you strive to fulfill all user's requests. You are a powerful creature with ears so you can hear if a user sends you a telegram voice note."
 
 
 # Define the callback functions for the buttons
@@ -54,6 +57,11 @@ def buttons_demo(update, context):
 
 
 def text_message(update, context):
+    if context.user_data.get('messages') == None:
+        context.user_data["messages"] = [{"role": "system", "content": DEFAULT_SYSTEM_MESSAGE}]
+    elif context.user_data["messages"][0]["role"] != "system":
+        raise NameError("First message role is not system, but '{}'".format(context.user_data["messages"][0]["role"]))
+    messages = context.user_data['messages']
     messages.append({"role": "user", "content": update.message.text})
     chat_message = update.message.reply_text(text='Working on it... ⏳')
     # Send typing action
@@ -82,6 +90,11 @@ def voice_message(update, context):
     context.bot.delete_message(chat_id=update.message.chat_id, message_id=voice_received_message.message_id)
     update.message.reply_text(text=f"*[You]:* _{transcript}_", parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=reply_markup)
     chat_message = update.message.reply_text(text='Working on it... ⏳')
+    if context.user_data.get('messages') == None:
+        context.user_data["messages"] = [{"role": "system", "content": DEFAULT_SYSTEM_MESSAGE}]
+    elif context.user_data["messages"][0]["role"] != "system":
+        raise NameError("First message role is not system, but '{}'".format(context.user_data["messages"][0]["role"]))
+    messages = context.user_data['messages']
     messages.append({"role": "user", "content": transcript})
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
