@@ -23,7 +23,7 @@ DEFAULT_SYSTEM_MESSAGE = "You are GenieGPT, a helpful telegram bot who is also e
 
 WELCOME_MESSAGE = "*Welcome to GenieGPT!*\n\n*Who am I?*\n\nI am GenieGPT - a powerful AI system, I analyze your message and provide you with a helpful response as quickly as possible. You can also send me voice notes and I will hear you (yeah I have ears 😱)\n\n*What can I do?*\n\nFrom writing essays on classic literature to explaining quantum field theory - you name it. Just type in your question and I will get back to you ASAP 😎\n\n*Limitations*\n\nPlease keep in mind that sometimes I may not answer because I am overloaded with requests from other users."
 
-OPENAI_REQUEST_TIMEOUT = 20 # openai request timeout in seconds
+OPENAI_REQUEST_TIMEOUT = 60 # openai request timeout in seconds
 
 
 # Define the callback functions for the buttons
@@ -81,7 +81,7 @@ def text_message(update, context):
     context.user_data["messages"][0] = {"role": "system", "content": DEFAULT_SYSTEM_MESSAGE}
     for i in range(len(context.user_data["messages"])):
         debug_message += "{}) {}: {}\n\n".format(i + 1, context.user_data["messages"][i]["role"], context.user_data["messages"][i]["content"])
-    update.message.reply_text(debug_message)
+    # update.message.reply_text(debug_message)
 
 
 def voice_message(update, context):
@@ -116,7 +116,7 @@ def voice_message(update, context):
     context.user_data["messages"][0] = {"role": "system", "content": DEFAULT_SYSTEM_MESSAGE}
     for i in range(len(context.user_data["messages"])):
         debug_message += "{}) {}: {}\n\n".format(i + 1, context.user_data["messages"][i]["role"], context.user_data["messages"][i]["content"])
-    update.message.reply_text(debug_message)
+    # update.message.reply_text(debug_message)
 
 
 def start(update, context):
