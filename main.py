@@ -1,56 +1,57 @@
+import config
 from telegram.ext import Updater, MessageHandler, CommandHandler, Filters, CallbackQueryHandler
 import telegram
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 import openai
 from moviepy.editor import AudioFileClip
 from dotenv import load_dotenv
 import os
-import logging
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-import json
 
+
+# import commands
+from commands import handle_command_help
+from commands import handle_command_start
+from commands import handle_command_timeout
+from commands import handle_command_error
 
 load_dotenv()  # Load environment variables from .env file
 openai.api_key = os.getenv('OPENAI_API_KEY')
 TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
 
 
-# Enable logging
-logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s\n\n', level=logging.INFO)
-logger = logging.getLogger(__name__)
-
+logging = config.logging
 
 DEFAULT_SYSTEM_MESSAGE = "You are GenieGPT, a helpful telegram bot who is also extremely funny and a very cocky, and likes to troll people a bit and show character, but you still remain very helpful and you strive to fulfill all user's requests. You are a powerful creature with ears so you can hear if a user sends you a telegram voice note."
 
-WELCOME_MESSAGE = "*Welcome to GenieGPT!*\n\n*Who am I?*\n\nI am GenieGPT - a powerful AI system, I analyze your message and provide you with a helpful response as quickly as possible. You can also send me voice notes and I will hear you (yeah I have ears 😱)\n\n*What can I do?*\n\nFrom writing essays on classic literature to explaining quantum field theory - you name it. Just type in your question and I will get back to you ASAP 😎\n\n*Limitations*\n\nPlease keep in mind that sometimes I may not answer because I am overloaded with requests from other users."
 
-OPENAI_REQUEST_TIMEOUT = 4  # openai request timeout in seconds
+OPENAI_REQUEST_TIMEOUT = 60  # openai request timeout in seconds
 
 
-def button_retry_callback(update, context):
+def button_callback_retry(update, context):
     print("Entering retry callback")
     print(update)
     last_request = context.user_data.get("last_request")
     context.bot.send_message(chat_id=update.effective_chat.id,
-                             text=f"*[You]:* {last_request}")
+                             text=f"*[You]:* {last_request}",
+                             parse_mode=telegram.ParseMode.MARKDOWN)
     last_error_message = context.user_data['last_error_message']
     context.bot.edit_message_text(chat_id=last_error_message.chat.id,
-                               message_id=last_error_message.message_id, text=last_error_message.text)
+                                  message_id=last_error_message.message_id, text=last_error_message.text)
     last_update = context.user_data['last_update']
-    text_message(last_update, context)
+    handle_message_text(last_update, context)
 
 
-def button_click_handler(update, context):
+def handle_callback_query(update, context):
     query = update.callback_query
     query.answer()
     button_id = query.data
     if button_id == 'retry':
-        button_retry_callback(update, context)
+        button_callback_retry(update, context)
     else:
         query.edit_message_text(text="Invalid button")
 
 
-def text_message(update, context):
+def handle_message_text(update, context):
     context.user_data['last_request'] = update.message.text
     context.user_data['last_update'] = update
     debug_message = ""
@@ -87,7 +88,7 @@ def text_message(update, context):
     # update.message.reply_text(debug_message)
 
 
-def voice_message(update, context):
+def handle_message_voice(update, context):
     debug_message = ""
     voice_received_message = update.message.reply_text(
         "I've received a voice message! Please give me a second to respond ⏳")
@@ -103,64 +104,24 @@ def voice_message(update, context):
         message_id=voice_received_message.message_id)
     update.message.reply_text(
         text=f"*[You]:* _{transcript}_", parse_mode=telegram.ParseMode.MARKDOWN)
-    text_message(update, context)
+    handle_message_text(update, context)
 
 
-def start(update, context):
-    """Start the bot"""
-    update.message.reply_text(text=WELCOME_MESSAGE,
-                              parse_mode=telegram.ParseMode.MARKDOWN)
-
-# define a function to raise errors
-def error(update, context):
-    """a special command for debugging, raises an EnvironmentError"""
-    raise EnvironmentError
-
-
-def timeout_error(update, context):
-    raise openai.error.Timeout
-
-
-def error_handler(update, context):
+def handle_error(update, context):
     print("Entering error handler", sep='\n')
     print(update, sep='\n')
     print(context, sep='\n')
     inline_keyboard = [[InlineKeyboardButton('Retry', callback_data='retry')]]
     reply_markup = InlineKeyboardMarkup(inline_keyboard)
     if isinstance(context.error, openai.error.Timeout):
-        error_message = context.bot.send_message(chat_id=update.effective_chat.id, text="Hey there, I'm sorry, but I couldn't get you an answer in reasonable time.\n\nThis might be because too many users are trying to get a response.\n\nYou can repeat your request and I will do my best to get you an answer this time 😎.\n\nYour chat history isn't affected by this error.", reply_markup=reply_markup)
+        error_message = context.bot.send_message(
+            chat_id=update.effective_chat.id, text="Hey there, I'm sorry, but I couldn't get you an answer in reasonable time.\n\nThis might be because too many users are trying to get a response.\n\nYou can repeat your request and I will do my best to get you an answer this time 😎.\n\nYour chat history isn't affected by this error.", reply_markup=reply_markup)
         context.user_data["last_error_message"] = error_message
     elif isinstance(context.error, telegram.error.NetworkError):
         print("\n\n\n\n----------------------------------------------------------------\n----------------------------------------------------------------\nINTERNET FAIL!!!!!!!\n----------------------------------------------------------------\n----------------------------------------------------------------\n")
     else:
         context.bot.send_message(chat_id=update.effective_chat.id,
-                                                 text=f"Sorry, an error occurred: '{str(context.error)}'.\n\nIf it's something strange please contact @igor_ivanter for questions.\n\nType: {type(context.error)}.\n\nTrying to print: {context.error}")
-
-
-def help_command(update, context):
-    """Get the list of all commands available"""
-    logging.info("Entering help_command")
-    # Get the list of registered command handlers from the dispatcher
-    logging.info("Printing all handlers:")
-    logging.info(context.dispatcher.handlers[0])
-    handlers = context.dispatcher.handlers[0]
-    command_handlers = [handler for handler in handlers if isinstance(handler, CommandHandler)]
-    logging.info("Printing command handlers:")
-    logging.info(command_handlers)
-    commands = [command_handler.command for command_handler in command_handlers]
-    logging.info("Printing commands:")
-    logging.info(commands)
-    help_msg = f'*Here is the list of available commands:*\n\n'
-
-    for command_handler in command_handlers:
-        for command in command_handler.command:
-            help_msg += f"/{command} - {command_handler.callback.__doc__ or 'no description 🙁'}\n\n"
-
-    # Send the help message to the user
-    logging.info(f"Constructed help message")
-    logging.info(help_msg)
-    update.message.reply_text(text=help_msg, parse_mode=telegram.ParseMode.MARKDOWN)
-    logging.info("Exiting help command")
+                                 text=f"Sorry, an error occurred: '{str(context.error)}'.\n\nIf it's something strange please contact @igor_ivanter for questions.\n\nType: {type(context.error)}.\n\nTrying to print: {context.error}")
 
 
 def main():
@@ -168,23 +129,23 @@ def main():
     dispatcher = updater.dispatcher
 
     # add the command handlers
-    dispatcher.add_handler(CommandHandler('start', start))
-    dispatcher.add_handler(CommandHandler('help', help_command))
-    dispatcher.add_handler(CommandHandler('error', error))
-    dispatcher.add_handler(CommandHandler('timeout', timeout_error))
+    dispatcher.add_handler(CommandHandler('start', handle_command_start))
+    dispatcher.add_handler(CommandHandler('help', handle_command_help))
+    dispatcher.add_handler(CommandHandler('error', handle_command_error))
+    dispatcher.add_handler(CommandHandler('timeout', handle_command_timeout))
 
     # add the text message hadler
     dispatcher.add_handler(MessageHandler(
-        Filters.text & (~Filters.command), text_message))
+        Filters.text & (~Filters.command), handle_message_text))
 
     # add the voice note handler
-    dispatcher.add_handler(MessageHandler(Filters.voice, voice_message))
+    dispatcher.add_handler(MessageHandler(Filters.voice, handle_message_voice))
 
     # add the error handler to dispatcher
-    dispatcher.add_error_handler(error_handler)
+    dispatcher.add_error_handler(handle_error)
 
     # add the callbackquery handler - this function defines what happenes when one of the inline buttons gets pressed
-    dispatcher.add_handler(CallbackQueryHandler(button_click_handler))
+    dispatcher.add_handler(CallbackQueryHandler(handle_callback_query))
 
     # start the bot
     updater.start_polling()
