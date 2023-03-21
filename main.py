@@ -16,7 +16,7 @@ TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
 
 # Enable logging
 logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s\n\n', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
@@ -107,11 +107,13 @@ def voice_message(update, context):
 
 
 def start(update, context):
+    """Start the bot"""
     update.message.reply_text(text=WELCOME_MESSAGE,
                               parse_mode=telegram.ParseMode.MARKDOWN)
 
 # define a function to raise errors
 def error(update, context):
+    """a special command for debugging, raises an EnvironmentError"""
     raise EnvironmentError
 
 
@@ -135,13 +137,39 @@ def error_handler(update, context):
                                                  text=f"Sorry, an error occurred: '{str(context.error)}'.\n\nIf it's something strange please contact @igor_ivanter for questions.\n\nType: {type(context.error)}.\n\nTrying to print: {context.error}")
 
 
+def help_command(update, context):
+    """Get the list of all commands available"""
+    logging.info("Entering help_command")
+    # Get the list of registered command handlers from the dispatcher
+    logging.info("Printing all handlers:")
+    logging.info(context.dispatcher.handlers[0])
+    handlers = context.dispatcher.handlers[0]
+    command_handlers = [handler for handler in handlers if isinstance(handler, CommandHandler)]
+    logging.info("Printing command handlers:")
+    logging.info(command_handlers)
+    commands = [command_handler.command for command_handler in command_handlers]
+    logging.info("Printing commands:")
+    logging.info(commands)
+    help_msg = f'*Here is the list of available commands:*\n\n'
+
+    for command_handler in command_handlers:
+        for command in command_handler.command:
+            help_msg += f"/{command} - {command_handler.callback.__doc__ or 'no description 🙁'}\n\n"
+
+    # Send the help message to the user
+    logging.info(f"Constructed help message")
+    logging.info(help_msg)
+    update.message.reply_text(text=help_msg, parse_mode=telegram.ParseMode.MARKDOWN)
+    logging.info("Exiting help command")
+
+
 def main():
     updater = Updater(TELEGRAM_BOT_TOKEN, use_context=True)
     dispatcher = updater.dispatcher
 
     # add the command handlers
     dispatcher.add_handler(CommandHandler('start', start))
-    dispatcher.add_handler(CommandHandler('help', start))
+    dispatcher.add_handler(CommandHandler('help', help_command))
     dispatcher.add_handler(CommandHandler('error', error))
     dispatcher.add_handler(CommandHandler('timeout', timeout_error))
 
