@@ -1,6 +1,32 @@
-.env
-*.mp3
-*.ogg
+# custom
+
 voice_message.mp3
 voice_message.ogg
 test.py
+
+# Игнорируем кеш Python
+__pycache__/
+*.pyc
+
+# Игнорируем файл .env, если он используется для конфигурации проекта
+.env
+
+# Игнорируем файлы настроек Python
+*.pyo
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Игнорируем файлы и папки, связанные с аудио
+*.mp3
+*.ogg
+*.wav
+
+# Игнорим файлы временного хранения, используемые в разработке проекта
+*.log
+*.swp
+*.swo
+*.pyc
+*.orig
+*.bak
