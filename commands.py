@@ -25,17 +25,17 @@ def handle_command_timeout(update, context):
 
 def handle_command_help(update, context):
     """Get the list of all commands available"""
-    logging.info("Entering help_command")
+    logging.debug("Entering help_command")
     # Get the list of registered command handlers from the dispatcher
-    logging.info("Printing all handlers:")
-    logging.info(context.dispatcher.handlers[0])
+    logging.debug("Printing all handlers:")
+    logging.debug(context.dispatcher.handlers[0])
     handlers = context.dispatcher.handlers[0]
     command_handlers = [handler for handler in handlers if isinstance(handler, CommandHandler)]
-    logging.info("Printing command handlers:")
-    logging.info(command_handlers)
+    logging.debug("Printing command handlers:")
+    logging.debug(command_handlers)
     commands = [command_handler.command for command_handler in command_handlers]
-    logging.info("Printing commands:")
-    logging.info(commands)
+    logging.debug("Printing commands:")
+    logging.debug(commands)
     help_msg = f'*Here is the list of available commands:*\n\n'
 
     for command_handler in command_handlers:
@@ -43,8 +43,8 @@ def handle_command_help(update, context):
             help_msg += f"/{command} - {command_handler.callback.__doc__ or 'no description 🙁'}\n\n"
 
     # Send the help message to the user
-    logging.info(f"Constructed help message")
-    logging.info(help_msg)
+    logging.debug(f"Constructed help message")
+    logging.debug(help_msg)
     update.message.reply_text(text=help_msg, parse_mode=telegram.ParseMode.MARKDOWN)
-    logging.info("Exiting help command")
+    logging.debug("Exiting help command")
 

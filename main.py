@@ -4,6 +4,7 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 import openai
 from dotenv import load_dotenv
 import os
+import config
 
 
 # import commands
@@ -22,7 +23,7 @@ openai.api_key = os.getenv('OPENAI_API_KEY')
 TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
 
 
-from config import logging
+logging = config.logging
 
 
 def button_callback_retry(update, context):
@@ -67,6 +68,7 @@ def handle_error(update, context):
 
 
 def main():
+    logging.info("Starting GenieGPT")
     updater = Updater(TELEGRAM_BOT_TOKEN, use_context=True)
     dispatcher = updater.dispatcher
 
