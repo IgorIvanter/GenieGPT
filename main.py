@@ -27,8 +27,6 @@ logging = config.logging
 
 
 def button_callback_retry(update, context):
-    # print("Entering retry callback")
-    # print(update)
     last_request = context.user_data.get("last_request")
     context.bot.send_message(chat_id=update.effective_chat.id,
                              text=f"*[You]:* {last_request}",
@@ -51,9 +49,6 @@ def handle_callback_query(update, context):
 
 
 def handle_error(update, context):
-    # print("Entering error handler", sep='\n')
-    # print(update, sep='\n')
-    # print(context, sep='\n')
     inline_keyboard = [[InlineKeyboardButton('Retry', callback_data='retry')]]
     reply_markup = InlineKeyboardMarkup(inline_keyboard)
     if isinstance(context.error, openai.error.Timeout):
