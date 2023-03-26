@@ -1,5 +1,4 @@
 from telegram.ext import Updater, MessageHandler, CommandHandler, Filters, CallbackQueryHandler
-import telegram
 import openai
 from dotenv import load_dotenv
 import os
@@ -19,6 +18,9 @@ from error import handle_error
 from handlers import handle_message_text
 from handlers import handle_message_voice
 
+# import callback query handler
+from callbackquery import handle_callback_query
+
 
 load_dotenv()  # Load environment variables from .env file
 openai.api_key = os.getenv('OPENAI_API_KEY')
@@ -26,28 +28,6 @@ TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
 
 
 logging = config.logging
-
-
-def button_callback_retry(update, context):
-    last_request = context.user_data.get("last_request")
-    context.bot.send_message(chat_id=update.effective_chat.id,
-                             text=f"*[You]:* {last_request}",
-                             parse_mode=telegram.ParseMode.MARKDOWN)
-    last_error_message = context.user_data['last_error_message']
-    context.bot.edit_message_text(chat_id=last_error_message.chat.id,
-                                  message_id=last_error_message.message_id, text=last_error_message.text)
-    last_update = context.user_data['last_update']
-    handle_message_text(last_update, context)
-
-
-def handle_callback_query(update, context):
-    query = update.callback_query
-    query.answer()
-    button_id = query.data
-    if button_id == 'retry':
-        button_callback_retry(update, context)
-    else:
-        query.edit_message_text(text="Invalid button")
 
 
 def main():
