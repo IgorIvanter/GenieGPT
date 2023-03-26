@@ -6,5 +6,5 @@ WELCOME_MESSAGE = "*Welcome to GenieGPT!*\n\n*Who am I?*\n\nI am GenieGPT - a po
 
 # Enable logging
 logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s\n\n', level=logging.INFO)
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s\n\n', level=logging.DEBUG)
 logger = logging.getLogger(__name__)
