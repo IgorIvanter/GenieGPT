@@ -4,19 +4,22 @@ from dotenv import load_dotenv
 import os
 import config
 
-
-# import commands
-from commands import handle_command_help
-from commands import handle_command_start
-from commands import handle_command_timeout
-from commands import handle_command_error
+# import command handlers
+from commands import (
+    handle_command_start,
+    handle_command_help,
+    handle_command_error,
+    handle_command_timeout
+)
 
 # import error handler
 from error import handle_error
 
 # import message handlers
-from handlers import handle_message_text
-from handlers import handle_message_voice
+from handlers import (
+    handle_message_text,
+    handle_message_voice
+)
 
 # import callback query handler
 from callbackquery import handle_callback_query
