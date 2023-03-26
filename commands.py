@@ -1,8 +1,7 @@
 import config
-
-from config import telegram
-from config import openai
-from config import CommandHandler
+import telegram
+import openai
+from telegram.ext import CommandHandler
 from config import WELCOME_MESSAGE
 
 logging = config.logging
