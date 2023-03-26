@@ -13,7 +13,7 @@ __pycache__/
 
 # Environments
 .env/
-.venv/lib
+.venv/
 env/
 venv/
 ENV/
