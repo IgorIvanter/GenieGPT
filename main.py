@@ -1,9 +1,7 @@
-import config
 from telegram.ext import Updater, MessageHandler, CommandHandler, Filters, CallbackQueryHandler
 import telegram
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 import openai
-from moviepy.editor import AudioFileClip
 from dotenv import load_dotenv
 import os
 
