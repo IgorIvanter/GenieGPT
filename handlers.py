@@ -1,17 +1,20 @@
 import openai
 import telegram
+import config
 from moviepy.editor import AudioFileClip
+from messages import DEFAULT_SYSTEM_MESSAGE
 
-DEFAULT_SYSTEM_MESSAGE = "You are GenieGPT, a helpful telegram bot who is also extremely funny and a bit arrogant, and likes to troll people a bit and show character, but you still remain very helpful and you strive to fulfill all user's requests. You are a powerful creature with ears so you can hear if a user sends you a telegram voice note."
+
+logging = config.logging
 
 
 OPENAI_REQUEST_TIMEOUT = 60  # openai request timeout in seconds
 
 
 def handle_message_text(update, context):
+    logging.debug("Entering handle_message_text")
     context.user_data['last_request'] = update.message.text
     context.user_data['last_update'] = update
-    debug_message = ""
     if context.user_data.get('messages') == None:
         context.user_data["messages"] = [
             {"role": "system", "content": DEFAULT_SYSTEM_MESSAGE}]
@@ -39,14 +42,11 @@ def handle_message_text(update, context):
     context.user_data["messages"] = context.user_data["messages"][-10:]
     context.user_data["messages"][0] = {
         "role": "system", "content": DEFAULT_SYSTEM_MESSAGE}
-    for i in range(len(context.user_data["messages"])):
-        debug_message += "{}) {}: {}\n\n".format(
-            i + 1, context.user_data["messages"][i]["role"], context.user_data["messages"][i]["content"])
-    # update.message.reply_text(debug_message)
+    logging.debug("Exiting handle_message_text")
 
 
 def handle_message_voice(update, context):
-    debug_message = ""
+    logging.debug("Entering handle_message_voice")
     voice_received_message = update.message.reply_text(
         "I've received a voice message! Please give me a second to respond ⏳")
     voice_file = context.bot.getFile(update.message.voice.file_id)
@@ -62,3 +62,4 @@ def handle_message_voice(update, context):
     update.message.reply_text(
         text=f"*[You]:* _{transcript}_", parse_mode=telegram.ParseMode.MARKDOWN)
     handle_message_text(update, context)
+    logging.debug("Exiting handle_message_voice")
