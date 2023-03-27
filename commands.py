@@ -2,8 +2,11 @@ import config
 import telegram
 import openai
 from telegram.ext import CommandHandler
-from messages import WELCOME_MESSAGE
-from messages import HISTORY_CLEARED_MESSAGE
+
+from messages import (
+    WELCOME_MESSAGE,
+    HISTORY_CLEARED_MESSAGE
+)
 
 logging = config.logging
 
@@ -11,8 +14,10 @@ logging = config.logging
 def handle_command_start(update, context):
     """Start the bot"""
     logging.debug("Entering handle_command_start")
-    update.message.reply_text(text=WELCOME_MESSAGE,
-                              parse_mode=telegram.ParseMode.MARKDOWN)
+    update.message.reply_text(
+        text=WELCOME_MESSAGE,
+        parse_mode=telegram.ParseMode.MARKDOWN
+    )
     logging.debug("Exiting handle_command_start")
 
 
