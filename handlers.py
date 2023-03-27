@@ -16,17 +16,28 @@ def handle_message_text(update, context):
     context.user_data['last_request'] = update.message.text
     context.user_data['last_update'] = update
     if context.user_data.get('messages') == None:
-        context.user_data["messages"] = [
-            {"role": "system", "content": DEFAULT_SYSTEM_MESSAGE}]
+        context.user_data["messages"] = [{
+            "role": "system",
+            "content": DEFAULT_SYSTEM_MESSAGE
+        }]
     elif context.user_data["messages"][0]["role"] != "system":
-        raise NameError("First message role is not system, but '{}'".format(
-            context.user_data["messages"][0]["role"]))
-    context.user_data["messages"].append(
-        {"role": "user", "content": update.message.text})
-    chat_message = update.message.reply_text(text='Working on it... ⏳')
+        raise NameError(
+            "First message role is not system, but '{}'".format(
+            context.user_data["messages"][0]["role"]
+            )
+        )
+    context.user_data["messages"].append({
+        "role": "user",
+        "content": update.message.text
+    })
+    chat_message = update.message.reply_text(
+        text='Working on it... ⏳'
+    )
     # Send typing action
     context.bot.send_chat_action(
-        chat_id=update.effective_chat.id, action=telegram.ChatAction.TYPING)
+        chat_id=update.effective_chat.id,
+        action=telegram.ChatAction.TYPING
+    )
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=context.user_data["messages"],
@@ -34,14 +45,20 @@ def handle_message_text(update, context):
     )
     ChatGPT_reply = response["choices"][0]["message"]["content"]
     context.bot.delete_message(
-        chat_id=update.message.chat_id, message_id=chat_message.message_id)
+        chat_id=update.message.chat_id,
+        message_id=chat_message.message_id
+    )
     update.message.reply_text(
-        text=f"*[Bot]:* {ChatGPT_reply}", parse_mode=telegram.ParseMode.MARKDOWN)
+        text=f"*[Bot]:* {ChatGPT_reply}",
+        parse_mode=telegram.ParseMode.MARKDOWN
+    )
     context.user_data["messages"].append(
         {"role": "assistant", "content": ChatGPT_reply})
     context.user_data["messages"] = context.user_data["messages"][-10:]
     context.user_data["messages"][0] = {
-        "role": "system", "content": DEFAULT_SYSTEM_MESSAGE}
+        "role": "system",
+        "content": DEFAULT_SYSTEM_MESSAGE
+    }
     logging.debug("Exiting handle_message_text")
 
 
@@ -58,8 +75,11 @@ def handle_message_voice(update, context):
     update.message.text = transcript
     context.bot.delete_message(
         chat_id=update.message.chat_id,
-        message_id=voice_received_message.message_id)
+        message_id=voice_received_message.message_id
+    )
     update.message.reply_text(
-        text=f"*[You]:* _{transcript}_", parse_mode=telegram.ParseMode.MARKDOWN)
+        text=f"*[You]:* _{transcript}_",
+        parse_mode=telegram.ParseMode.MARKDOWN
+    )
     handle_message_text(update, context)
     logging.debug("Exiting handle_message_voice")
