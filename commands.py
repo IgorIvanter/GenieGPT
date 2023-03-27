@@ -5,7 +5,8 @@ from telegram.ext import CommandHandler
 
 from messages import (
     WELCOME_MESSAGE,
-    HISTORY_CLEARED_MESSAGE
+    HISTORY_CLEARED_MESSAGE,
+    PRIVACY_POLICY
 )
 
 logging = config.logging
@@ -69,3 +70,11 @@ def handle_command_help(update, context):
     update.message.reply_text(
         text=help_msg, parse_mode=telegram.ParseMode.MARKDOWN)
     logging.debug("Exiting help command")
+
+
+def handle_command_privacy(update, context):
+    """read our privacy policy (that you automatically agree with by using this bots)"""
+    update.message.reply_text(
+        text=PRIVACY_POLICY,
+        parse_mode=telegram.ParseMode.HTML
+    )

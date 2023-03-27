@@ -1,8 +1,16 @@
-from telegram.ext import Updater, MessageHandler, CommandHandler, Filters, CallbackQueryHandler
 import openai
-from dotenv import load_dotenv
 import os
 import config
+
+from dotenv import load_dotenv
+
+from telegram.ext import (
+    Updater,
+    MessageHandler,
+    CommandHandler,
+    Filters,
+    CallbackQueryHandler
+)
 
 # import command handlers
 from commands import (
@@ -10,7 +18,8 @@ from commands import (
     handle_command_help,
     handle_command_error,
     handle_command_timeout,
-    handle_command_reset
+    handle_command_reset,
+    handle_command_privacy
 )
 
 # import error handler
@@ -45,6 +54,7 @@ def main():
     dispatcher.add_handler(CommandHandler('error', handle_command_error))
     dispatcher.add_handler(CommandHandler('timeout', handle_command_timeout))
     dispatcher.add_handler(CommandHandler('reset', handle_command_reset))
+    dispatcher.add_handler(CommandHandler('privacy', handle_command_privacy))
 
     # add the text message hadler
     dispatcher.add_handler(MessageHandler(
