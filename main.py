@@ -1,8 +1,16 @@
-from telegram.ext import Updater, MessageHandler, CommandHandler, Filters, CallbackQueryHandler
 import openai
-from dotenv import load_dotenv
 import os
 import config
+
+from dotenv import load_dotenv
+
+from telegram.ext import (
+    Updater,
+    MessageHandler,
+    CommandHandler,
+    Filters,
+    CallbackQueryHandler
+)
 
 # import command handlers
 from commands import (
