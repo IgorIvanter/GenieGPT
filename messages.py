@@ -10,8 +10,6 @@ TEXT_RECEIVED_MESSAGE = "Working on it... ⏳"
 
 VOICE_RECEIVED_MESSAGE = "I've received a voice message! Please give me a second to respond ⏳"
 
-
-
 # Error Messages
 
 HISTORY_CLEARED_MESSAGE = "Perfect!\n\nOur conversation history has been cleared for me.\n\nAnything above this message is out of my memory now 😁\n\nNow, what can I help you with?"
@@ -19,6 +17,8 @@ HISTORY_CLEARED_MESSAGE = "Perfect!\n\nOur conversation history has been cleared
 OPENAI_TIMEOUT_ERROR_MESSAGE = "Hey there, I'm sorry, but I couldn't get you an answer in reasonable time.\n\nThis might be because too many users are trying to get a response.\n\nYou can repeat your request and I will do my best to get you an answer this time 😎.\n\nYour chat history isn't affected by this error."
 
 UNKNOWN_ERROR_MESSAGE = "I am sorry, some unknown error occurred: '{}'.\n\nYou can try resetting your chat history with /reset or completely clearing the chat and starting from scratch.\n\nIf it doesn't help or it's something strange please contact @igor_ivanter for help and feedback."
+
+# Legal
 
 PRIVACY_POLICY = f"""
 
