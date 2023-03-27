@@ -2,15 +2,18 @@ import config
 import telegram
 import openai
 from telegram.ext import CommandHandler
-from config import WELCOME_MESSAGE
+from messages import WELCOME_MESSAGE
+from messages import HISTORY_CLEARED_MESSAGE
 
 logging = config.logging
 
 
 def handle_command_start(update, context):
     """Start the bot"""
+    logging.debug("Entering handle_command_start")
     update.message.reply_text(text=WELCOME_MESSAGE,
                               parse_mode=telegram.ParseMode.MARKDOWN)
+    logging.debug("Exiting handle_command_start")
 
 
 # define a function to raise errors
@@ -31,7 +34,8 @@ def handle_command_reset(update, context):
     context.user_data["messages"] = [context.user_data["messages"][0]]
     logging.debug("History after clearing:")
     logging.debug(context.user_data["messages"])
-    update.message.reply_text("Perfect!\n\nOur conversation history has been cleared for me.\n\nAnything above this message is out of my memory now😁\n\nNow, what can I help you with?")
+    update.message.reply_text(HISTORY_CLEARED_MESSAGE)
+    logging.debug("Exiting handle_command_reset()")
 
 
 def handle_command_help(update, context):
@@ -41,7 +45,8 @@ def handle_command_help(update, context):
     logging.debug("Printing all handlers:")
     logging.debug(context.dispatcher.handlers[0])
     handlers = context.dispatcher.handlers[0]
-    command_handlers = [handler for handler in handlers if isinstance(handler, CommandHandler)]
+    command_handlers = [
+        handler for handler in handlers if isinstance(handler, CommandHandler)]
     logging.debug("Printing command handlers:")
     logging.debug(command_handlers)
     commands = [command_handler.command for command_handler in command_handlers]
@@ -56,6 +61,6 @@ def handle_command_help(update, context):
     # Send the help message to the user
     logging.debug(f"Constructed help message")
     logging.debug(help_msg)
-    update.message.reply_text(text=help_msg, parse_mode=telegram.ParseMode.MARKDOWN)
+    update.message.reply_text(
+        text=help_msg, parse_mode=telegram.ParseMode.MARKDOWN)
     logging.debug("Exiting help command")
-
