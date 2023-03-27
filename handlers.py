@@ -9,6 +9,11 @@ from messages import (
     VOICE_RECEIVED_MESSAGE
 )
 
+from config import (
+    VOICE_MESSAGE_MP3,
+    VOICE_MESSAGE_OGG
+)
+
 
 logging = config.logging
 
@@ -85,13 +90,13 @@ def handle_message_voice(update, context):
         VOICE_RECEIVED_MESSAGE
     )
     # Download the voice note and convert to mp3
-    voice_file = context.bot.getFile(update.message.voice.file_id)
-    voice_file.download("voice_message.ogg")
-    audio_clip = AudioFileClip("voice_message.ogg")
-    audio_clip.write_audiofile("voice_message.mp3")
-    audio_file = open("voice_message.mp3", "rb")
+    voice_file_ogg = context.bot.getFile(update.message.voice.file_id)
+    voice_file_ogg.download(VOICE_MESSAGE_OGG)
+    temp_audio_clip = AudioFileClip(VOICE_MESSAGE_OGG)
+    temp_audio_clip.write_audiofile(VOICE_MESSAGE_MP3)
+    voice_file_mp3 = open(VOICE_MESSAGE_MP3, "rb")
     # Get the transcription from Whisper API
-    transcript = openai.Audio.transcribe("whisper-1", audio_file).text
+    transcript = openai.Audio.transcribe("whisper-1", voice_file_mp3).text
     update.message.text = transcript
     # Delete the 'voice received' message
     context.bot.delete_message(
