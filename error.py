@@ -1,17 +1,44 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 import telegram
 import openai
+import config
+
+from messages import (
+    OPENAI_TIMEOUT_ERROR_MESSAGE,
+    UNKNOWN_ERROR_MESSAGE
+)
+
+logging = config.logging
 
 
 def handle_error(update, context):
+    logging.debug("Entering handle_error")
+
+    # Creating Inline Keyboard Markup for the 'retry' button at the bottom of the error message
     inline_keyboard = [[InlineKeyboardButton('Retry', callback_data='retry')]]
     reply_markup = InlineKeyboardMarkup(inline_keyboard)
-    if isinstance(context.error, openai.error.Timeout):
+
+    # Extract the occured error from context
+    error = context.error
+
+    # Handle OpenAI Timeout Error
+    if isinstance(error, openai.error.Timeout):
         error_message = context.bot.send_message(
-            chat_id=update.effective_chat.id, text="Hey there, I'm sorry, but I couldn't get you an answer in reasonable time.\n\nThis might be because too many users are trying to get a response.\n\nYou can repeat your request and I will do my best to get you an answer this time 😎.\n\nYour chat history isn't affected by this error.", reply_markup=reply_markup)
+            chat_id=update.effective_chat.id,
+            text=OPENAI_TIMEOUT_ERROR_MESSAGE.format(error),
+            reply_markup=reply_markup
+        )
         context.user_data["last_error_message"] = error_message
-    elif isinstance(context.error, telegram.error.NetworkError):
-        print("\n\n\n\n----------------------------------------------------------------\n----------------------------------------------------------------\nINTERNET FAIL!!!!!!!\n----------------------------------------------------------------\n----------------------------------------------------------------\n")
+        logging.error(f"OpenAI Timeout Error: {error}")
+    # Handle Network Error (internet issues)
+    elif isinstance(error, telegram.error.NetworkError):
+        logging.error(f"Telegram NetworkError: {error}")
+    # Handle all other errors
     else:
-        context.bot.send_message(chat_id=update.effective_chat.id,
-                                 text=f"Sorry, an error occurred: '{str(context.error)}'.\n\nIf it's something strange please contact @igor_ivanter for questions.\n\nType: {type(context.error)}.\n\nTrying to print: {context.error}")
+        context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text=UNKNOWN_ERROR_MESSAGE.format(error)
+        )
+        logging.error(f"Unrecognized Error: {error}")
+
+    logging.debug("Exiting handle_error")
