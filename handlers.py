@@ -2,7 +2,7 @@ import openai
 import telegram
 import config
 
-from UserDataProvider import UserDataProvider
+from UserDataProviderV2 import UserDataProvider
 from moviepy.editor import AudioFileClip
 
 from messages import (

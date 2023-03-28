@@ -3,7 +3,7 @@ import telegram
 import openai
 
 from telegram.ext import CommandHandler
-from UserDataProvider import UserDataProvider
+from UserDataProviderV2 import UserDataProvider
 
 from config import (
     USER_DATA_FILE_PATH

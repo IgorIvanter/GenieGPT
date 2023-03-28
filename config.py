@@ -9,4 +9,4 @@ VOICE_MESSAGE_FILE_PATH_BASE = "audio/voice_message"
 VOICE_MESSAGE_MP3 = VOICE_MESSAGE_FILE_PATH_BASE + ".mp3"
 VOICE_MESSAGE_OGG = VOICE_MESSAGE_FILE_PATH_BASE + ".ogg"
 
-USER_DATA_FILE_PATH = "./users/data.pickle"
+USER_DATA_FILE_PATH = "./users/user_data.json"
