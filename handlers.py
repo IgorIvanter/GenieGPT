@@ -1,6 +1,8 @@
 import openai
 import telegram
 import config
+
+from UserDataProvider import UserDataProvider
 from moviepy.editor import AudioFileClip
 
 from messages import (
@@ -11,7 +13,8 @@ from messages import (
 
 from config import (
     VOICE_MESSAGE_MP3,
-    VOICE_MESSAGE_OGG
+    VOICE_MESSAGE_OGG,
+    USER_DATA_FILE_PATH
 )
 
 
@@ -22,6 +25,31 @@ OPENAI_REQUEST_TIMEOUT = 60  # openai request timeout in seconds
 
 def handle_message_text(update, context):
     logging.debug("Entering handle_message_text")
+
+    chat_id = update.message.chat_id
+    users = UserDataProvider(USER_DATA_FILE_PATH)
+    user_plan_data = users.get_user_data(user_id=chat_id)
+
+    if len(user_plan_data) == 0:
+        users.update_user_data(
+            user_id=chat_id,
+            has_paid_plan=False,
+            num_requests=0
+        )
+        user_plan_data = users.get_user_data(user_id=chat_id)
+    # Check if the user has free requests left
+    if user_plan_data["has_paid_plan"] == False and user_plan_data["num_requests"] >= 5:
+        update.message.reply_text(
+            text="Sorry, no more free requests left"
+        )
+        return
+    else:
+        # Increment num requests
+        users.update_user_data(
+            user_id=chat_id,
+            has_paid_plan=user_plan_data["has_paid_plan"],
+            num_requests=user_plan_data["num_requests"] + 1
+        )
 
     # Store last update and last message for the case of error
     context.user_data['last_request'] = update.message.text
@@ -36,10 +64,10 @@ def handle_message_text(update, context):
     elif context.user_data["messages"][0]["role"] != "system":
         raise NameError(
             "First message role is not system, but '{}'".format(
-            context.user_data["messages"][0]["role"]
+                context.user_data["messages"][0]["role"]
             )
         )
-    
+
     # Add the latest user message to history
     context.user_data["messages"].append({
         "role": "user",
