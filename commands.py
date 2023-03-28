@@ -1,7 +1,13 @@
 import config
 import telegram
 import openai
+
 from telegram.ext import CommandHandler
+from UserDataProvider import UserDataProvider
+
+from config import (
+    USER_DATA_FILE_PATH
+)
 
 from messages import (
     WELCOME_MESSAGE,
@@ -78,3 +84,10 @@ def handle_command_privacy(update, context):
         text=PRIVACY_POLICY,
         parse_mode=telegram.ParseMode.HTML
     )
+
+
+def handle_command_data(update, context):
+    """a special command for debugging, returns user data stored"""
+    users = UserDataProvider(USER_DATA_FILE_PATH)
+    data = users.get_user_data(user_id=update.message.chat_id)
+    update.message.reply_text(data)
