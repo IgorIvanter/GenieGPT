@@ -4,6 +4,9 @@ voice_message.mp3
 voice_message.ogg
 /users
 
+UserDataProvider.py
+UserDataProviderV3.py
+
 # Игнорируем кеш Python
 __pycache__/
 *.pyc

@@ -8,13 +8,15 @@ from moviepy.editor import AudioFileClip
 from messages import (
     DEFAULT_SYSTEM_MESSAGE,
     TEXT_RECEIVED_MESSAGE,
-    VOICE_RECEIVED_MESSAGE
+    VOICE_RECEIVED_MESSAGE,
+    FREE_TRIAL_EXPIRED_MESSAGE
 )
 
 from config import (
     VOICE_MESSAGE_MP3,
     VOICE_MESSAGE_OGG,
-    USER_DATA_FILE_PATH
+    USER_DATA_FILE_PATH,
+    MAX_FREE_REQUESTS
 )
 
 
@@ -38,9 +40,9 @@ def handle_message_text(update, context):
         )
         user_plan_data = users.get_user_data(user_id=chat_id)
     # Check if the user has free requests left
-    if user_plan_data["has_paid_plan"] == False and user_plan_data["num_requests"] >= 5:
+    if user_plan_data["has_paid_plan"] == False and user_plan_data["num_requests"] >= MAX_FREE_REQUESTS:
         update.message.reply_text(
-            text="Sorry, no more free requests left"
+            text=FREE_TRIAL_EXPIRED_MESSAGE
         )
         return
     else:

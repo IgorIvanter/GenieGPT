@@ -1,4 +1,4 @@
-BOT_NAME = "MegaBot"
+BOT_NAME = "GenieGPT"
 
 WELCOME_MESSAGE = f"*Welcome to {BOT_NAME}!*\n\n*Who am I?*\n\nI am {BOT_NAME} - a powerful AI system, I analyze your message and provide you with a helpful response as quickly as possible. You can also send me voice notes and I will hear you (yeah I have ears 😱)\n\nUse /help to see the list of available commands\n\n*What can I do?*\n\nFrom writing essays on classic literature to explaining quantum field theory - you name it. Just type in your question and I will get back to you ASAP 😎\n\n*Limitations*\n\nPlease keep in mind that sometimes I may not answer because I am overloaded with requests from other users.\n\n*IMPORTANT!*\n\nBy using this bot, you automatically agree to our /privacy policy (use /privacy command to read it)."
 
@@ -52,3 +52,15 @@ If you have any questions or concerns about our privacy policy, you can contact 
 
 Thank you for using {BOT_NAME}!
 """
+
+# Free and Premium plans
+
+UNLIMITED_PLAN_PRICE = 5
+
+from config import (
+    MAX_FREE_REQUESTS
+)
+
+FREE_TRIAL_EXPIRED_MESSAGE = f"*Your Free Trial has expired 🙁*\n\nYour {MAX_FREE_REQUESTS} free requests for {BOT_NAME} have been used up.\n\nTo continue using the bot, you can subscribe to the premium version for {UNLIMITED_PLAN_PRICE} euro a month, which includes unlimited requests.\n\nPlease contact {CONTACT_PERSON} to purchase"
+
+FREE_TRIAL_EXPIRED_MESSAGE = "Hey there, your free trial has just expired.\n\nYou can subscribe to the premium version which includes unlimited requests and priority support.\n\nPlease contact @igor_ivanter to purchase."

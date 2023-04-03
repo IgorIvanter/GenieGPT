@@ -10,3 +10,10 @@ VOICE_MESSAGE_MP3 = VOICE_MESSAGE_FILE_PATH_BASE + ".mp3"
 VOICE_MESSAGE_OGG = VOICE_MESSAGE_FILE_PATH_BASE + ".ogg"
 
 USER_DATA_FILE_PATH = "./users/user_data.json"
+
+# Plan names
+FREE_PLAN = "free"
+UNLIMITED_PLAN = "unlimited"
+
+# Plan config
+MAX_FREE_REQUESTS = 5
