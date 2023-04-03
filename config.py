@@ -16,4 +16,4 @@ FREE_PLAN = "free"
 UNLIMITED_PLAN = "unlimited"
 
 # Plan config
-MAX_FREE_REQUESTS = 5
+MAX_FREE_REQUESTS = 100
