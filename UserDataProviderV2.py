@@ -25,11 +25,12 @@ class UserDataProvider:
         self._load_user_data()
         logging.debug(f"Exiting UserDataProvider constructor. User data: {self.user_data_dict}")
 
-    def update_user_data(self, user_id, has_paid_plan=False, num_requests=0):
+    def update_user_data(self, user_id, has_paid_plan=False, num_requests=0, username=None):
         logging.debug(f"Entering update_user_data. User data: {self.user_data_dict}")
         self.user_data_dict[str(user_id)] = {
             "has_paid_plan": has_paid_plan,
-            "num_requests": num_requests
+            "num_requests": num_requests,
+            "username": username
         }
         logging.debug(f"Exiting update_user_data. User data: {self.user_data_dict}")
         self._save_user_data()

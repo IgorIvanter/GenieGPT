@@ -36,7 +36,8 @@ def handle_message_text(update, context):
         users.update_user_data(
             user_id=chat_id,
             has_paid_plan=False,
-            num_requests=0
+            num_requests=0,
+            username=update.message.chat.username
         )
         user_plan_data = users.get_user_data(user_id=chat_id)
     # Check if the user has free requests left
@@ -50,7 +51,8 @@ def handle_message_text(update, context):
         users.update_user_data(
             user_id=chat_id,
             has_paid_plan=user_plan_data["has_paid_plan"],
-            num_requests=user_plan_data["num_requests"] + 1
+            num_requests=user_plan_data["num_requests"] + 1,
+            username=update.message.chat.username
         )
 
     # Store last update and last message for the case of error
