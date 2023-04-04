@@ -53,7 +53,7 @@ class UserDataProvider:
     def _save_user_data(self):
         logging.debug(f"Entering _save_user_data. User data: {self.user_data_dict}")
         with open(self.file_path, 'w') as f:
-            json.dump(self.user_data_dict, f)
+            json.dump(self.user_data_dict, f, indent=4)
         logging.debug(f"Exiting _save_user_data. User data: {self.user_data_dict}")
 
 
