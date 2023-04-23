@@ -7,5 +7,7 @@ GenieGPT is a Telegram bot designed to bring assistance, entertainment and humor
 
 - Telegram bot API
 - python-telegram-bot library
-- error-handling in python
-- logging in python
+- Using environment variables with a `.env` file
+- Hosting python scripts on EC2
+- Error handling in python
+- Logging in python
