@@ -11,3 +11,13 @@ GenieGPT is a Telegram bot designed to bring assistance, entertainment and humor
 - Hosting python scripts on EC2
 - Error handling in python
 - Logging in python
+
+# How to launch the bot locally
+
+If you don't have it yet, install poetry. Then create your own .env file with valid credentials. Install dependencies:
+
+```poetry install```
+
+Run the bot using poetry's virtual environment:
+
+```poetry run python main.py```
