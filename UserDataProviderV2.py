@@ -19,7 +19,7 @@ class UserDataProvider:
             logging.debug(f"Creating path {file_path}")
             os.makedirs(os.path.dirname(self.file_path))
             with open(file_path, "w") as f:
-                json.dump(f, {})
+                json.dump(f, {})    # doesn't work, must create a file with a string "{}" but creates and empty one
                 logging.debug(f"Created file {file_path}")
         
         self._load_user_data()
