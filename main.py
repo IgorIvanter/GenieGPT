@@ -19,7 +19,8 @@ from commands import (
     handle_command_error,
     handle_command_timeout,
     handle_command_reset,
-    handle_command_privacy
+    handle_command_privacy,
+    handle_command_data
 )
 
 # import error handler
@@ -55,6 +56,7 @@ def main():
     dispatcher.add_handler(CommandHandler('timeout', handle_command_timeout))
     dispatcher.add_handler(CommandHandler('reset', handle_command_reset))
     dispatcher.add_handler(CommandHandler('privacy', handle_command_privacy))
+    dispatcher.add_handler(CommandHandler('data', handle_command_data))
 
     # add the text message hadler
     dispatcher.add_handler(MessageHandler(

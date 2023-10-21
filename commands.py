@@ -1,7 +1,13 @@
 import config
 import telegram
 import openai
+
 from telegram.ext import CommandHandler
+from UserDataProviderV2 import UserDataProvider
+
+from config import (
+    USER_DATA_FILE_PATH
+)
 
 from messages import (
     WELCOME_MESSAGE,
@@ -24,7 +30,7 @@ def handle_command_start(update, context):
 
 # define a function to raise errors
 def handle_command_error(update, context):
-    """a special command for debugging, raises an EnvironmentError"""
+    # """a special command for debugging, raises an EnvironmentError"""
     raise EnvironmentError
 
 
@@ -51,8 +57,7 @@ def handle_command_help(update, context):
     logging.debug("Printing all handlers:")
     logging.debug(context.dispatcher.handlers[0])
     handlers = context.dispatcher.handlers[0]
-    command_handlers = [
-        handler for handler in handlers if isinstance(handler, CommandHandler)]
+    command_handlers = [handler for handler in handlers if isinstance(handler, CommandHandler)]
     logging.debug("Printing command handlers:")
     logging.debug(command_handlers)
     commands = [command_handler.command for command_handler in command_handlers]
@@ -62,6 +67,8 @@ def handle_command_help(update, context):
 
     for command_handler in command_handlers:
         for command in command_handler.command:
+            if not command_handler.callback.__doc__:
+                continue
             help_msg += f"/{command} - {command_handler.callback.__doc__ or 'no description 🙁'}\n\n"
 
     # Send the help message to the user
@@ -78,3 +85,10 @@ def handle_command_privacy(update, context):
         text=PRIVACY_POLICY,
         parse_mode=telegram.ParseMode.HTML
     )
+
+
+def handle_command_data(update, context):
+    # a special command for debugging, returns user data stored
+    users = UserDataProvider(USER_DATA_FILE_PATH)
+    data = users.get_user_data(user_id=update.message.chat_id)
+    update.message.reply_text(data)

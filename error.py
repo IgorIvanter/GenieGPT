@@ -29,16 +29,16 @@ def handle_error(update, context):
             reply_markup=reply_markup
         )
         context.user_data["last_error_message"] = error_message
-        logging.error(f"OpenAI Timeout Error: {error}")
+        logging.error(f"OpenAI Timeout Error: {error}", exc_info=True)
     # Handle Network Error (internet issues)
     elif isinstance(error, telegram.error.NetworkError):
-        logging.error(f"Telegram NetworkError: {error}")
+        logging.error(f"Telegram NetworkError: {error}", exc_info=True)
     # Handle all other errors
     else:
         context.bot.send_message(
             chat_id=update.effective_chat.id,
             text=UNKNOWN_ERROR_MESSAGE.format(error)
         )
-        logging.error(f"Unrecognized Error: {error}")
+        logging.error(f"Unrecognized Error: {error}", exc_info=True)
 
     logging.debug("Exiting handle_error")
